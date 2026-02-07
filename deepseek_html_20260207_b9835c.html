@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Criador de Chapéu - Stardew Valley</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 15px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            padding: 0 10px;
+        }
+        
+        .mobile-warning {
+            background: #2d2d44;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .mobile-warning .emoji {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        
+        .help-trigger {
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+        
+        .help-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            background: rgba(76, 175, 80, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .help-link:hover, .help-link:active {
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .help-arrow {
+            font-size: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+            width: 100%;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 14px;
+            background: #2d2d44;
+            border: 2px solid #444;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        /* Melhorar seleção em mobile */
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .upload-area {
+            border: 2px dashed #666;
+            padding: 30px 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #2d2d44;
+            margin: 15px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        
+        .upload-area:active {
+            border-color: #4CAF50;
+            background: #33334d;
+        }
+        
+        .upload-area.drag-over {
+            border-color: #4CAF50;
+            background: #33334d;
+        }
+        
+        .requirements {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .preview {
+            width: 80px;
+            height: 320px;
+            border: 2px solid #444;
+            background: #333;
+            image-rendering: pixelated;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+        
+        .preview-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        
+        .preview-note {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        button:active {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .info-box {
+            background: #2d2d44;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+        }
+        
+        .shop-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .shop-btn {
+            padding: 14px 8px;
+            background: #33334d;
+            border: 2px solid #444;
+            color: #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 14px;
+            touch-action: manipulation;
+            user-select: none;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .shop-btn:active {
+            background: #3a3a5a;
+            border-color: #555;
+        }
+        
+        .shop-btn.selected {
+            background: #4CAF50;
+            border-color: #45a049;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .shop-btn.selected::after {
+            content: " ✓";
+        }
+        
+        /* Estilo para o botão com ícone */
+        .shop-btn.with-icon {
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 10px;
+            text-align: left;
+            padding-left: 15px;
+        }
+        
+        .shop-btn-icon {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-content {
+            background: #2d2d44;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #4CAF50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .modal-actions button {
+            margin: 0;
+            flex: 1;
+            padding: 16px;
+            font-size: 16px;
+        }
+        
+        .modal-actions button.cancel {
+            background: #666;
+        }
+        
+        .modal-actions button.cancel:active {
+            background: #777;
+        }
+        
+        .suggestion-box {
+            background: #33334d;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .suggestion-box p {
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+        
+        .id-suggestions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .id-suggestion {
+            color: #4CAF50;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            font-size: 13px;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+        
+        .id-suggestion:active {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        
+        .empty-space {
+            height: 10px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* Botão Esconde Cabelo */
+        .hair-toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #2d2d44;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            transition: all 0.3s;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .hair-toggle-container.active {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: #4CAF50;
+        }
+        
+        .hair-toggle-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .hair-toggle-icon {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hair-toggle-text {
+            flex: 1;
+        }
+        
+        .hair-toggle-text h3 {
+            color: #ddd;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .hair-toggle-text p {
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .hair-toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: #666;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .hair-toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hair-toggle-container.active .hair-toggle-switch {
+            background: #4CAF50;
+        }
+        
+        .hair-toggle-container.active .hair-toggle-switch::after {
+            transform: translateX(22px);
+        }
+        
+        /* Anúncio Container */
+        .ad-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .ad-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .ad-icon {
+            font-size: 20px;
+        }
+        
+        .ad-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .ad-button {
+            display: inline-block;
+            background: white;
+            color: #764ba2;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .ad-button:hover, .ad-button:active {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+        
+        .ad-note {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* Melhorias para telas maiores */
+        @media (min-width: 768px) {
+            body {
+                padding: 25px;
+            }
+            
+            .shop-buttons {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .shop-btn {
+                padding: 15px 10px;
+                font-size: 15px;
+            }
+            
+            .shop-btn.with-icon {
+                padding-left: 15px;
+            }
+            
+            .modal-actions {
+                flex-direction: row;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+            
+            .preview {
+                width: 100px;
+                height: 400px;
+            }
+            
+            .hair-toggle-container {
+                padding: 20px;
+            }
+        }
+        
+        /* Para telas muito pequenas */
+        @media (max-width: 320px) {
+            .shop-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            button {
+                padding: 16px;
+                font-size: 16px;
+            }
+            
+            .shop-btn.with-icon {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+            
+            .shop-btn-icon {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .hair-toggle-content {
+                gap: 10px;
+            }
+            
+            .hair-toggle-icon {
+                font-size: 24px;
+                width: 32px;
+                height: 32px;
+            }
+        }
+        
+        /* Prevenir zoom em inputs no iOS */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            select,
+            textarea,
+            input {
+                font-size: 16px !important;
+            }
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #2d2d44;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+        
+        /* Loading state */
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .price-input-container {
+            position: relative;
+        }
+        
+        .price-suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        input[type="number"] {
+            padding-right: 60px;
+        }
+        
+        /* Preview melhorado */
+        .enhanced-preview {
+            width: 160px;
+            height: 640px;
+            border: 2px solid #444;
+            background: #333;
+            image-rendering: pixelated;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px auto;
+            position: relative;
+        }
+        
+        .enhanced-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+        
+        .frame-indicator {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        
+        /* Estilos para o modal de ajuda */
+        .help-welcome {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .help-welcome strong {
+            color: #4CAF50;
+            font-size: 18px;
+        }
+        
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .warning-box p {
+            color: #ffc107;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .launcher-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+        
+        .launcher-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            background: #33334d;
+            border: 2px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-align: center;
+            gap: 8px;
+            min-height: 90px;
+        }
+        
+        .launcher-btn:hover, .launcher-btn:active {
+            background: #3a3a5a;
+            border-color: #4CAF50;
+            transform: translateY(-3px);
+        }
+        
+        .launcher-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .launcher-text {
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        
+        .launcher-note {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 3px;
+        }
+        
+        .help-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 12px;
+            border-top: 1px solid #444;
+            padding-top: 15px;
+        }
+        
+        @media (max-width: 480px) {
+            .launcher-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎩 Criador de Chapéu - Stardew Valley</h1>
+        
+        <div class="mobile-warning" id="mobileWarning">
+            <span class="emoji">📱</span> Use modo paisagem para melhor experiência no celular
+        </div>
+        
+        <div class="help-trigger">
+            <a class="help-link" id="helpTrigger">
+                <span>💡 Clique aqui se tiver dúvida</span>
+                <span class="help-arrow">⬇️</span>
+            </a>
+        </div>
+        
+        <div class="empty-space"></div>
+        
+        <div class="form-group">
+            <label>Nome do Chapéu:</label>
+            <input type="text" id="hatName" placeholder="Ex: Chapéu do Cangaceiro" autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+            <label>Descrição:</label>
+            <input type="text" id="hatDescription" placeholder="Ex: Um chapéu perdido, utilizado pelo rei do cangaço." autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+            <label>Nome para Exibição no Jogo:</label>
+            <input type="text" id="displayName" placeholder="Ex: Chapéu do Virgulino" autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+            <label>Onde o chapéu será vendido? (Toque para selecionar)</label>
+            <div class="shop-buttons" id="shopButtons">
+                <div class="shop-btn" data-shop="SeedShop">Loja do Pierre</div>
+                <div class="shop-btn" data-shop="JojaMart">Joja Mart</div>
+                <div class="shop-btn" data-shop="Hospital">Hospital</div>
+                <div class="shop-btn" data-shop="Blacksmith">Ferreiro</div>
+                <div class="shop-btn" data-shop="Saloon">Saloon</div>
+                <div class="shop-btn with-icon selected" data-shop="HatMouse">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGMSURBVFhH7ZdNSwJRFIbHf1CbNm4i2op/QOgqpO1t2rVqHUEQLVzYxo9Fqwioj0VEFEEttOgrcCm0aFHQ5pzzTuM43pnT9XWmBx44zNy5M+ceeOdeaeUsk+i9lO61Wq5QkSUJ4khB6+v3+1N3d3bi1l8uYB/CNCSE7yL14vV5j3S6Y00gmk0VjSvwqE/w9WspIyrgQY5Q4g2q7u7vPWHnDo4z4nBbyq7/0OMLi+FutVnm9Xn+B6AdeJY98zGfD4fDAk0wm3/L5/AVkT/iMfMi4B/3GcsJX0RfU6/U3HEwznB6Z3t1EJt4fBLvd7jn0j6CHGCOv6Mvn8/MOhf4j9NUsLnyMw3E0k8l0g8HgMx4EDzRj4w6a2T1kMhmA1ikWixfQw4wS56R/9vtT7VBYX1+/2t7evi6VSleDweAWGg96VJ7x61ar1ZttAdrR0dH1ycnJDfQ7vs5yubxmbP6GnZ2dm0qlcrO2tnYdCoUeY7HYQzQafcCp3+PC5sPylW1BLOg5xt9oNJpYVpCOx+NP2Fz1LByC73VpyhvZArSjoyPcMzKZTEcpxo/t7e07m7t22+BtTvW/UKvVWn19AJfY/AHkbtf9v3EJpZTHuI2lEokf9QAAAABJRU5ErkJggg==" alt="Casa Abandonada" class="shop-btn-icon">
+                    <span>Rato do Chapéu</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Preço de Venda:</label>
+            <div class="price-input-container">
+                <input type="number" id="hatPrice" min="0" step="1" value="1000" placeholder="Digite o preço">
+                <span class="price-suffix">ouros</span>
+            </div>
+            <div class="requirements">Digite qualquer valor (0 para gratuito)</div>
+        </div>
+        
+        <!-- Botão Esconde Cabelo -->
+        <div class="hair-toggle-container" id="hideHairToggle">
+            <div class="hair-toggle-content">
+                <div class="hair-toggle-icon">👱</div>
+                <div class="hair-toggle-text">
+                    <h3>Esconde Cabelo</h3>
+                    <p>Ative para fazer o cabelo do personagem desaparecer quando o chapéu estiver equipado. Ideal para chapéus que cobrem completamente a cabeça.</p>
+                </div>
+                <div class="hair-toggle-switch"></div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Sprite do Chapéu:</label>
+            <div class="upload-area" id="uploadArea">
+                📁 Toque para selecionar imagem PNG
+                <div class="requirements">Dimensões exigidas: 20x80 pixels (4 frames de 20x20)</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/png" style="display: none;">
+            
+            <div class="preview-container">
+                <div class="preview-label">Preview do Chapéu (4x maior para melhor visualização):</div>
+                <div class="enhanced-preview" id="preview">
+                    <div class="frame-indicator">20×80</div>
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 14px; text-align: center; padding: 10px;">
+                        Imagem aparecerá aqui<br>
+                        <span style="font-size: 12px;">(Visualização 4x maior)</span>
+                    </div>
+                </div>
+                <div class="preview-note">Nota: A visualização está 4x maior que o sprite real (20×80 → 80×320)</div>
+            </div>
+        </div>
+        
+        <!-- Container do Anúncio -->
+        <div class="ad-container" id="adContainer">
+            <div class="ad-header">
+                <span class="ad-icon">📢</span>
+                <span>SUPORTE AO CRIADOR</span>
+            </div>
+            <p class="ad-text">Esta ferramenta é 100% gratuita! Para nos ajudar a manter o projeto, por favor, clique no anúncio abaixo. Leva apenas 5 segundos!</p>
+            <a href="https://woofbeginner.com/nd6bpxy0?key=d96026ecc2fe7c3466ded816d0f65e58" target="_blank" class="ad-button" id="adLink">
+                👉 Clique para ver o anúncio 👈
+            </a>
+            <p class="ad-note">Após clicar no anúncio, você pode fechar a nova aba e continuar com a exportação.</p>
+        </div>
+        
+        <button id="exportBtn" disabled>🛠️ Criar Mod</button>
+    </div>
+
+    <!-- Modal para Ajuda -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-content">
+            <h2>📚 Central de Ajuda</h2>
+            
+            <div class="help-welcome">
+                <p><strong>Olá, sou Pixelganimation, criador desta ferramenta.</strong></p>
+                <p>Se tiver dúvidas sobre como criar seu mod, as instruções abaixo vão te ajudar.</p>
+            </div>
+            
+            <div class="warning-box">
+                <p>⚠️ IMPORTANTE: Mods criados nesta ferramenta exigem SMAPI e Content Patcher para funcionar!</p>
+            </div>
+            
+            <div class="launcher-buttons">
+                <a href="https://smapi.io/" target="_blank" class="launcher-btn">
+                    <div class="launcher-icon">🚀</div>
+                    <div class="launcher-text">SMAPI</div>
+                    <div class="launcher-note">Mod Loader Essencial</div>
+                </a>
+                
+                <a href="https://www.nexusmods.com/stardewvalley/mods/1915" target="_blank" class="launcher-btn">
+                    <div class="launcher-icon">🛠️</div>
+                    <div class="launcher-text">Content Patcher</div>
+                    <div class="launcher-note">Framework de Mods</div>
+                </a>
+                
+                <a href="https://pixelganimation.itch.io/" target="_blank" class="launcher-btn">
+                    <div class="launcher-icon">🎨</div>
+                    <div class="launcher-text">Tutorial Sprite</div>
+                    <div class="launcher-note">Aprenda a desenhar</div>
+                </a>
+                
+                <a href="https://www.youtube.com/@pixelganimation" target="_blank" class="launcher-btn">
+                    <div class="launcher-icon">▶️</div>
+                    <div class="launcher-text">YouTube</div>
+                    <div class="launcher-note">Vídeo Tutorial</div>
+                </a>
+                
+                <a href="https://beacons.ai/pixelganimation" target="_blank" class="launcher-btn" style="grid-column: span 2;">
+                    <div class="launcher-icon">🔗</div>
+                    <div class="launcher-text">Beacons.ai</div>
+                    <div class="launcher-note">Central de Redes Sociais</div>
+                </a>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Dicas rápidas:</strong></p>
+                <p>1. Seu sprite deve ter exatamente 20x80 pixels (4 frames de 20x20)</p>
+                <p>2. O UniqueID não pode ter espaços ou caracteres especiais</p>
+                <p>3. Sempre teste seus mods antes de publicar</p>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="closeHelpBtn">✅ Entendi e Fechar</button>
+            </div>
+            
+            <div class="help-footer">
+                <p>Pixelganimation © 2024 - Ferramenta Criador de Chapéus para Stardew Valley</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Configurações do Mod -->
+    <div class="modal-overlay" id="modConfigModal">
+        <div class="modal-content">
+            <h2>⚙️ Configurações do Mod</h2>
+            
+            <div class="form-group">
+                <label>UniqueID do Mod:</label>
+                <input type="text" id="modalUniqueId" placeholder="Ex: Virgulino" value="MeuChapel" autocomplete="off">
+                <div class="suggestion-box">
+                    <p>Sugestões baseadas no nome do chapéu:</p>
+                    <div class="id-suggestions-container" id="idSuggestions">
+                        <!-- Sugestões serão geradas aqui -->
+                    </div>
+                    <p style="margin-top: 10px; color: #888; font-size: 12px;">
+                        ⚠️ O UniqueID deve ser ÚNICO e não conter espaços ou caracteres especiais.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Autor do Mod:</label>
+                <input type="text" id="modalAuthor" placeholder="Ex: SeuNome" value="Usuario" autocomplete="off">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="cancel" id="cancelBtn">Cancelar</button>
+                <button id="saveModConfigBtn">Salvar e Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        const creator = {
+            modData: {
+                name: '',
+                description: '',
+                uniqueId: 'MeuChapel',
+                author: 'Usuario',
+                displayName: '',
+                price: 1000,
+                sprite: null,
+                spriteFileName: '',
+                selectedShops: ['HatMouse'],
+                hideHair: false, // Nova propriedade para esconder cabelo
+                adShown: false   // Nova propriedade para controle do anúncio
+            },
+            
+            init() {
+                this.detectMobile();
+                this.setupEvents();
+                this.setupDragAndDrop();
+                this.setupHairToggle();
+            },
+            
+            detectMobile() {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const warning = document.getElementById('mobileWarning');
+                
+                if (isMobile && window.innerWidth < 768) {
+                    warning.style.display = 'block';
+                    
+                    // Verificar orientação
+                    const checkOrientation = () => {
+                        if (window.innerWidth < window.innerHeight) {
+                            warning.innerHTML = '<span class="emoji">📱</span> Gire o celular para modo paisagem para melhor experiência';
+                            warning.style.display = 'block';
+                        } else {
+                            warning.style.display = 'none';
+                        }
+                    };
+                    
+                    window.addEventListener('resize', checkOrientation);
+                    checkOrientation();
+                }
+            },
+            
+            setupEvents() {
+                // Prevenir comportamento padrão em toques longos
+                document.addEventListener('touchstart', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        return;
+                    }
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                // Nome do chapéu
+                document.getElementById('hatName').addEventListener('input', (e) => {
+                    this.modData.name = e.target.value.trim();
+                    
+                    if (!this.modData.displayName) {
+                        document.getElementById('displayName').value = this.modData.name;
+                        this.modData.displayName = this.modData.name;
+                    }
+                    
+                    this.generateIdSuggestions();
+                    this.updateButton();
+                });
+                
+                // Descrição
+                document.getElementById('hatDescription').addEventListener('input', (e) => {
+                    this.modData.description = e.target.value.trim();
+                });
+                
+                // Nome para exibição
+                document.getElementById('displayName').addEventListener('input', (e) => {
+                    this.modData.displayName = e.target.value.trim();
+                });
+                
+                // Preço - agora com input number
+                document.getElementById('hatPrice').addEventListener('input', (e) => {
+                    this.modData.price = parseInt(e.target.value) || 0;
+                });
+                
+                // Upload da imagem
+                document.getElementById('uploadArea').addEventListener('click', () => {
+                    document.getElementById('fileInput').click();
+                });
+                
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleUpload(e.target.files[0]);
+                });
+                
+                // Botões de loja - suporte a toque
+                document.querySelectorAll('.shop-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const shop = e.currentTarget.dataset.shop;
+                        this.toggleShopSelection(shop, e.currentTarget);
+                    });
+                    
+                    // Prevenir duplo clique/zoom
+                    btn.addEventListener('touchstart', (e) => {
+                        if (e.touches.length > 1) {
+                            e.preventDefault();
+                        }
+                    }, { passive: false });
+                });
+                
+                // Botão exportar
+                const exportBtn = document.getElementById('exportBtn');
+                exportBtn.addEventListener('click', () => {
+                    this.showModConfigModal();
+                });
+                
+                // Botão de ajuda
+                document.getElementById('helpTrigger').addEventListener('click', () => {
+                    this.showHelpModal();
+                });
+                
+                document.getElementById('closeHelpBtn').addEventListener('click', () => {
+                    this.hideHelpModal();
+                });
+                
+                // Modal events
+                document.getElementById('cancelBtn').addEventListener('click', () => {
+                    this.hideModConfigModal();
+                });
+                
+                document.getElementById('saveModConfigBtn').addEventListener('click', () => {
+                    this.saveModConfig();
+                });
+                
+                // Fechar modais
+                document.getElementById('helpModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'helpModal') {
+                        this.hideHelpModal();
+                    }
+                });
+                
+                document.getElementById('modConfigModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'modConfigModal') {
+                        this.hideModConfigModal();
+                    }
+                });
+                
+                // Fechar modal com ESC
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (document.getElementById('helpModal').style.display === 'flex') {
+                            this.hideHelpModal();
+                        } else if (document.getElementById('modConfigModal').style.display === 'flex') {
+                            this.hideModConfigModal();
+                        }
+                    }
+                });
+            },
+            
+            setupHairToggle() {
+                const toggle = document.getElementById('hideHairToggle');
+                toggle.addEventListener('click', () => {
+                    this.modData.hideHair = !this.modData.hideHair;
+                    toggle.classList.toggle('active', this.modData.hideHair);
+                });
+            },
+            
+            setupDragAndDrop() {
+                const uploadArea = document.getElementById('uploadArea');
+                
+                // Apenas para desktop
+                if (!('ontouchstart' in window)) {
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        uploadArea.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        });
+                    });
+                    
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        uploadArea.addEventListener(eventName, () => {
+                            uploadArea.classList.add('drag-over');
+                        });
+                    });
+                    
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        uploadArea.addEventListener(eventName, () => {
+                            uploadArea.classList.remove('drag-over');
+                        });
+                    });
+                    
+                    uploadArea.addEventListener('drop', (e) => {
+                        const file = e.dataTransfer.files[0];
+                        this.handleUpload(file);
+                    });
+                }
+            },
+            
+            handleUpload(file) {
+                if (!file) return;
+                
+                if (!file.type.includes('image/png')) {
+                    this.showAlert('❌ Apenas arquivos PNG são aceitos!');
+                    return;
+                }
+                
+                const img = new Image();
+                img.onload = () => {
+                    if (img.width !== 20 || img.height !== 80) {
+                        this.showAlert(`❌ Dimensões incorretas!\n\nExigido: 20x80 pixels\nEnviado: ${img.width}x${img.height} pixels\n\nA imagem deve ter exatamente 20 pixels de largura e 80 pixels de altura.`);
+                        return;
+                    }
+                    
+                    this.modData.sprite = file;
+                    this.modData.spriteFileName = 'hat.png';
+                    
+                    const preview = document.getElementById('preview');
+                    preview.innerHTML = `
+                        <div class="frame-indicator">20×80</div>
+                        <img src="${URL.createObjectURL(file)}" alt="Preview do chapéu">
+                    `;
+                    
+                    this.updateButton();
+                };
+                img.src = URL.createObjectURL(file);
+            },
+            
+            toggleShopSelection(shop, button) {
+                const index = this.modData.selectedShops.indexOf(shop);
+                
+                if (index === -1) {
+                    this.modData.selectedShops.push(shop);
+                    button.classList.add('selected');
+                } else {
+                    this.modData.selectedShops.splice(index, 1);
+                    button.classList.remove('selected');
+                }
+            },
+            
+            updateButton() {
+                const btn = document.getElementById('exportBtn');
+                const hasRequired = this.modData.name && this.modData.sprite;
+                btn.disabled = !hasRequired;
+                
+                if (!hasRequired) {
+                    btn.innerHTML = '🛠️ Criar Mod';
+                } else {
+                    btn.innerHTML = `🛠️ Criar "${this.modData.name}"`;
+                }
+            },
+            
+            generateIdSuggestions() {
+                if (!this.modData.name) return;
+                
+                const suggestionsDiv = document.getElementById('idSuggestions');
+                const baseId = this.modData.name
+                    .toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]/g, '');
+                
+                const suggestions = [
+                    baseId,
+                    baseId + 'Hat',
+                    baseId + 'Chapel',
+                    'My' + baseId.charAt(0).toUpperCase() + baseId.slice(1),
+                    baseId + 'Mod'
+                ];
+                
+                suggestionsDiv.innerHTML = '';
+                suggestions.forEach(suggestion => {
+                    if (suggestion && suggestion.length >= 3) {
+                        const span = document.createElement('span');
+                        span.className = 'id-suggestion';
+                        span.textContent = suggestion;
+                        span.addEventListener('click', () => {
+                            document.getElementById('modalUniqueId').value = suggestion;
+                            // Feedback visual
+                            span.style.background = 'rgba(76, 175, 80, 0.3)';
+                            setTimeout(() => {
+                                span.style.background = '';
+                            }, 300);
+                        });
+                        suggestionsDiv.appendChild(span);
+                    }
+                });
+            },
+            
+            showHelpModal() {
+                document.getElementById('helpModal').style.display = 'flex';
+            },
+            
+            hideHelpModal() {
+                document.getElementById('helpModal').style.display = 'none';
+            },
+            
+            showModConfigModal() {
+                document.getElementById('modalUniqueId').value = this.modData.uniqueId;
+                document.getElementById('modalAuthor').value = this.modData.author;
+                
+                document.getElementById('modConfigModal').style.display = 'flex';
+                
+                if (this.modData.name) {
+                    this.generateIdSuggestions();
+                }
+                
+                // Foco no primeiro campo
+                setTimeout(() => {
+                    document.getElementById('modalUniqueId').focus();
+                }, 300);
+            },
+            
+            hideModConfigModal() {
+                document.getElementById('modConfigModal').style.display = 'none';
+            },
+            
+            saveModConfig() {
+                const uniqueId = document.getElementById('modalUniqueId').value.trim();
+                const author = document.getElementById('modalAuthor').value.trim();
+                
+                if (!uniqueId) {
+                    this.showAlert('❌ Por favor, informe um UniqueID para o mod!');
+                    return;
+                }
+                
+                if (!/^[a-zA-Z0-9_]+$/.test(uniqueId)) {
+                    this.showAlert('❌ O UniqueID só pode conter letras, números e underscores!');
+                    return;
+                }
+                
+                if (!author) {
+                    this.showAlert('❌ Por favor, informe o autor do mod!');
+                    return;
+                }
+                
+                this.modData.uniqueId = uniqueId;
+                this.modData.author = author;
+                
+                this.hideModConfigModal();
+                
+                // Mostrar anúncio antes de criar o mod
+                this.showAdAndCreateMod();
+            },
+            
+            showAdAndCreateMod() {
+                // Mostrar container do anúncio
+                const adContainer = document.getElementById('adContainer');
+                adContainer.style.display = 'block';
+                
+                // Rolar até o anúncio
+                adContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Mostrar alerta explicativo
+                this.showAlert('📢 AJUDE O CRIADOR!\n\nPor favor, clique no anúncio abaixo para nos ajudar a manter esta ferramenta gratuita.\n\nApós clicar, você pode fechar a nova aba e continuar com a exportação.');
+                
+                // Adicionar evento ao link do anúncio
+                const adLink = document.getElementById('adLink');
+                adLink.addEventListener('click', (e) => {
+                    this.modData.adShown = true;
+                    
+                    // Após um pequeno delay, criar o mod
+                    setTimeout(() => {
+                        adContainer.style.display = 'none';
+                        this.createMod();
+                    }, 1000);
+                });
+                
+                // Também permitir pular o anúncio após 10 segundos
+                setTimeout(() => {
+                    if (!this.modData.adShown) {
+                        const skipBtn = document.createElement('button');
+                        skipBtn.textContent = 'Pular anúncio e continuar';
+                        skipBtn.style.cssText = `
+                            background: #666;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-top: 10px;
+                            font-size: 12px;
+                        `;
+                        skipBtn.addEventListener('click', () => {
+                            adContainer.style.display = 'none';
+                            this.createMod();
+                        });
+                        
+                        adContainer.appendChild(skipBtn);
+                    }
+                }, 10000);
+            },
+            
+            showAlert(message) {
+                alert(message);
+            },
+            
+            getHatId() {
+                return `${this.modData.uniqueId}_Hat`;
+            },
+            
+            getShopName(shopId) {
+                const shopNames = {
+                    'SeedShop': 'Loja do Pierre',
+                    'JojaMart': 'Joja Mart',
+                    'Hospital': 'Hospital',
+                    'Blacksmith': 'Ferreiro',
+                    'Saloon': 'Saloon',
+                    'HatMouse': 'Rato do Chapéu'
+                };
+                return shopNames[shopId] || shopId;
+            },
+            
+            async createMod() {
+                try {
+                    const exportBtn = document.getElementById('exportBtn');
+                    const originalText = exportBtn.innerHTML;
+                    exportBtn.classList.add('loading');
+                    exportBtn.innerHTML = 'Processando...';
+                    
+                    if (!this.modData.sprite) {
+                        this.showAlert('❌ Por favor, selecione uma imagem para o chapéu!');
+                        exportBtn.classList.remove('loading');
+                        exportBtn.innerHTML = originalText;
+                        return;
+                    }
+                    
+                    if (!this.modData.uniqueId) {
+                        this.showAlert('❌ Por favor, informe um UniqueID para o mod!');
+                        exportBtn.classList.remove('loading');
+                        exportBtn.innerHTML = originalText;
+                        return;
+                    }
+                    
+                    const zip = new JSZip();
+                    const modFolderName = this.modData.name.replace(/[^a-z0-9]/gi, '_');
+                    const folder = zip.folder(modFolderName);
+                    
+                    // Configuração
+                    const config = {
+                        "SellPrice": this.modData.price.toString()
+                    };
+                    
+                    // Content - com suporte para esconder cabelo
+                    const hatId = this.getHatId();
+                    
+                    // Ajustar a entrada do chapéu para incluir a opção de esconder cabelo
+                    // Formato: ID/Descrição/ShowHair/IgnoreHairstyleOffset/HideHair/Nome/Prerequisite/Texutre
+                    // O campo HideHair (índice 4) controla se o cabelo deve ser escondido
+                    const hatEntry = this.modData.hideHair 
+                        ? `${hatId}/${this.modData.description || "Chapéu customizado"}/true/true/true/${this.modData.displayName || this.modData.name}/0/{{HatTexturePathForData}}`
+                        : `${hatId}/${this.modData.description || "Chapéu customizado"}/true/true//${this.modData.displayName || this.modData.name}/0/{{HatTexturePathForData}}`;
+                    
+                    const content = {
+                        "Format": "2.3.0",
+                        "ConfigSchema": {
+                            "SellPrice": {
+                                "Default": this.modData.price
+                            }
+                        },
+                        "DynamicTokens": [
+                            {
+                                "Name": "HatTextureBaseName",
+                                "Value": `Mods/${this.modData.uniqueId}/HatTextureInternal`
+                            },
+                            {
+                                "Name": "HatTextureAsset",
+                                "Value": "{{HatTextureBaseName}}"
+                            },
+                            {
+                                "Name": "HatTexturePathForData",
+                                "Value": "{{FormatAssetName: {{HatTextureAsset}} |separator=\\}}"
+                            }
+                        ],
+                        "Changes": [
+                            {
+                                "Action": "Load",
+                                "Target": "{{HatTextureAsset}}",
+                                "FromFile": "assets/hat.png"
+                            },
+                            {
+                                "Action": "EditData",
+                                "Target": "Data/Hats",
+                                "Entries": {
+                                    [hatId]: hatEntry
+                                }
+                            }
+                        ]
+                    };
+                    
+                    this.modData.selectedShops.forEach(shopId => {
+                        content.Changes.push({
+                            "Action": "EditData",
+                            "Target": "Data/Shops",
+                            "TargetField": [shopId, "Items"],
+                            "Entries": {
+                                [hatId]: { 
+                                    "ItemId": hatId, 
+                                    "Price": "{{SellPrice}}" 
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Manifest
+                    const manifest = {
+                        "Name": this.modData.name,
+                        "Author": this.modData.author,
+                        "Version": "1.0.0",
+                        "Description": this.modData.description || "Chapéu customizado para Stardew Valley",
+                        "UniqueID": this.modData.uniqueId,
+                        "ContentPackFor": {
+                            "UniqueID": "Pathoschild.ContentPatcher"
+                        },
+                        "UpdateKeys": []
+                    };
+                    
+                    // Créditos
+                    const creditsContent = `[PORTUGUÊS]
+Este mod foi criado usando a ferramenta pixelganimation.
+Confira mais em: 
+https://www.youtube.com/@pixelganimation
+https://beacons.ai/pixelganimation
+
+[ENGLISH]
+This mod was created using the pixelganimation tool.
+Check out more at:
+https://www.youtube.com/@pixelganimation
+https://beacons.ai/pixelganimation`;
+                    
+                    // README - Atualizado com informações sobre esconder cabelo
+                    const shopList = this.modData.selectedShops.map(shop => `• ${this.getShopName(shop)}`).join('\n');
+                    const hideHairInfo = this.modData.hideHair ? "Sim (cabelo desaparece quando equipado)" : "Não (cabelo permanece visível)";
+                    const readme = `# ${this.modData.name}
+
+Chapéu criado com Criador de Chapéus para Stardew Valley
+
+## 📋 Detalhes do Mod:
+- **Nome:** ${this.modData.name}
+- **Autor:** ${this.modData.author}
+- **Versão:** 1.0.0
+- **Descrição:** ${this.modData.description || "Chapéu customizado"}
+- **UniqueID:** ${this.modData.uniqueId}
+
+## 🎩 Detalhes do Chapéu:
+- **ID do Chapéu:** ${hatId}
+- **Nome para Exibição:** ${this.modData.displayName || this.modData.name}
+- **Preço:** ${this.modData.price} ouros
+- **Esconde Cabelo:** ${hideHairInfo}
+
+## 🛒 Onde comprar:
+${shopList}
+
+## 📦 Instalação:
+1. Extraia esta pasta em "Stardew Valley/Mods/"
+2. Certifique-se de ter o Content Patcher instalado
+3. Inicie o jogo pelo SMAPI
+
+## ⚙️ Configuração:
+Você pode alterar o preço do chapéu editando o arquivo config.json
+
+## 🎮 Comando SMAPI para obter o chapéu:
+\`debug additem (H)${hatId} 1\`
+
+---
+
+**Criado com Criador de Chapéus para Stardew Valley**`;
+                    
+                    // Salvar arquivos
+                    folder.file("config.json", JSON.stringify(config, null, 2));
+                    folder.file("content.json", JSON.stringify(content, null, 2));
+                    folder.file("manifest.json", JSON.stringify(manifest, null, 2));
+                    folder.file("README.md", readme);
+                    folder.file("CREDITOS_PIXELGANIMATION.txt", creditsContent);
+                    
+                    // Assets
+                    const assetsFolder = folder.folder("assets");
+                    assetsFolder.file("hat.png", this.modData.sprite);
+                    
+                    // Gerar ZIP
+                    const blob = await zip.generateAsync({type: "blob"});
+                    
+                    // Salvar arquivo
+                    if (window.navigator.msSaveOrOpenBlob) {
+                        // Para IE/Edge
+                        window.navigator.msSaveOrOpenBlob(blob, `${modFolderName}.zip`);
+                    } else {
+                        saveAs(blob, `${modFolderName}.zip`);
+                    }
+                    
+                    exportBtn.classList.remove('loading');
+                    exportBtn.innerHTML = originalText;
+                    
+                    // Resetar flag do anúncio
+                    this.modData.adShown = false;
+                    
+                    // Mensagem de sucesso
+                    const shopNamesList = this.modData.selectedShops.map(shop => this.getShopName(shop)).join(', ');
+                    const hideHairMessage = this.modData.hideHair ? "\n👱 Cabelo será escondido quando equipado" : "";
+                    this.showAlert(`🎉 MOD CRIADO COM SUCESSO!
+
+📁 Arquivo: ${modFolderName}.zip
+🎩 Chapéu: ${this.modData.name}
+💰 Preço: ${this.modData.price} ouros
+${hideHairMessage}
+🛒 Disponivel em: ${shopNamesList}
+
+📋 PARA INSTALAR:
+1. Extraia a pasta "${modFolderName}" para:
+   Stardew Valley/Mods/
+
+2. Certifique-se de ter:
+   • SMAPI
+   • Content Patcher
+
+3. Inicie o jogo pelo SMAPI
+
+✅ Tudo pronto! O mod está 100% funcional!`);
+                    
+                } catch (error) {
+                    console.error('Erro:', error);
+                    this.showAlert(`❌ Erro ao criar mod!\n\nDetalhes: ${error.message}`);
+                    
+                    const exportBtn = document.getElementById('exportBtn');
+                    exportBtn.classList.remove('loading');
+                    exportBtn.innerHTML = '🛠️ Criar Mod';
+                }
+            }
+        };
+        
+        // Inicializar quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            creator.init();
+        });
+    </script>
+</body>
+</html>
